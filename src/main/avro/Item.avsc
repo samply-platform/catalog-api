@@ -1,0 +1,47 @@
+{
+  "type": "record",
+  "name": "Item",
+  "namespace": "org.samply.catalog.api.domain.model",
+  "fields": [
+    {
+      "name": "id",
+      "type": {
+        "type": "string",
+        "logicalType": "UUID"
+      }
+    },
+    {
+      "name": "sellerId",
+      "type": "string"
+    },
+    {
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "name": "description",
+      "type": "string"
+    },
+    {
+      "name": "price",
+      "type": {
+        "type": "bytes",
+        "logicalType": "decimal",
+        "precision": 2,
+        "scale": 2
+      }
+    },
+    {
+      "name": "category",
+      "type": {
+        "name": "Category",
+        "type": "enum",
+        "symbols": [
+          "A",
+          "B",
+          "C"
+        ]
+      }
+    }
+  ]
+}

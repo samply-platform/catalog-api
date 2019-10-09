@@ -1,0 +1,16 @@
+Thumbs.db
+.DS_Store
+.gradle
+build/
+target/
+out/
+.idea
+*.iml
+*.ipr
+*.iws
+.project
+.settings
+.classpath
+.factorypath
+src/main/java/org/samply/catalog/api/domain/model/Item.java
+src/main/java/org/samply/catalog/api/domain/model/Category.java

@@ -1,0 +1,11 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "CodeLens (Launch) - Application",
+      "request": "launch",
+      "mainClass": "src.main.java.catalog.api.Application",
+      "projectName": "catalog-api"
+    }
+  ]
+}
