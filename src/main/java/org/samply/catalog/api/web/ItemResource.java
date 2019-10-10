@@ -1,7 +1,6 @@
 package org.samply.catalog.api.web;
 
 import java.math.BigDecimal;
-import javax.inject.Named;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.samply.catalog.api.domain.model.Category;
