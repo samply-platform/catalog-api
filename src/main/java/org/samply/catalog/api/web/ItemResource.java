@@ -57,7 +57,7 @@ public class ItemResource {
             )
     })
     public HttpResponse<ItemDTO> addItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
-                                         @Valid @NotNull @Named("item") @Body ItemCreationDTO item) {
+                                         @Valid @NotNull @Body ItemCreationDTO item) {
         LOG.info("POST Item for {}", sellerId);
 
         return HttpResponse.created(
