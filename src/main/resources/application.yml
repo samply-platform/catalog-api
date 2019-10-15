@@ -18,3 +18,19 @@ micronaut:
 kafka:
   bootstrap:
     servers: localhost:9092
+  producers:
+    'capi-item-producer':
+      key:
+        serializer: org.apache.kafka.common.serialization.StringSerializer
+      value:
+        serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      acks: -1
+      max:
+        block:
+          ms: 30000
+      transaction:
+        timeout:
+          ms: 30000
+      schema:
+        registry:
+          url: http://localhost:8081

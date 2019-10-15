@@ -9,6 +9,7 @@ import org.samply.catalog.api.domain.model.ItemCreationDTO;
 import org.samply.catalog.api.domain.model.ItemDTO;
 import org.samply.catalog.api.domain.model.ItemId;
 import org.samply.catalog.api.domain.model.SellerId;
+import org.samply.catalog.api.domain.service.ItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.micronaut.http.HttpResponse;
@@ -18,6 +19,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.validation.Validated;
+import io.reactivex.Single;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,6 +41,12 @@ public class ItemResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(ItemResource.class);
 
+    private final ItemService itemService;
+
+    public ItemResource(ItemService itemService) {
+        this.itemService = itemService;
+    }
+
     @Post
     @ApiResponses({
             @ApiResponse(
@@ -55,19 +63,12 @@ public class ItemResource {
                 )
             )
     })
-    public HttpResponse<ItemDTO> addItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
+    public Single<HttpResponse<ItemDTO>> addItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
                                          @Valid @NotNull @Body ItemCreationDTO item) {
         LOG.info("POST Item for {}", sellerId);
 
-        return HttpResponse.created(
-                ItemDTO.of(
-                        ItemId.of("234234"),
-                        "34534",
-                        "description",
-                        BigDecimal.valueOf(9.99),
-                        Category.A
-                )
-        );
+        return itemService.addItem(item, sellerId)
+                          .map(HttpResponse::created);
     }
 
 }
