@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 public class RootResource {
 
     @Get
-    @Hidden    HttpResponse<?> redirectToApiDocs() {
+    HttpResponse<?> redirectToApiDocs() {
         return HttpResponse.redirect(URI.create("/swagger-ui"));
     }
 

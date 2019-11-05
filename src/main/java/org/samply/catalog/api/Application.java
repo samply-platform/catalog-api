@@ -21,9 +21,14 @@ import io.swagger.v3.oas.annotations.security.SecuritySchemes;
             type = SecuritySchemeType.OAUTH2,
             flows = @OAuthFlows(
                 password = @OAuthFlow(
-                    tokenUrl = "http://localhost:8090/auth/realms/samply/protocol/openid-connect/token"
+                    tokenUrl = "http://keycloak.devlocal/auth/realms/samply/protocol/openid-connect/token"
                 )
             )
+        ),
+        @SecurityScheme(
+            name = "openId",
+            type = SecuritySchemeType.OPENIDCONNECT,
+            openIdConnectUrl = "http://keycloak.devlocal/auth/realms/samply/.well-known/openid-configuration"
         )
 })
 public class Application {
