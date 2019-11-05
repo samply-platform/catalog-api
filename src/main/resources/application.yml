@@ -3,17 +3,19 @@ micronaut:
   application:
     name: catalog-api
   router:
-        static-resources:
-            swagger:
-                paths:
-                  - classpath:META-INF/swagger
-                  - classpath:swagger
-                mapping: /swagger/**
+    static-resources:
+        swagger-ui:
+          paths:
+            - classpath:swagger-ui
+          mapping: /swagger-ui/**
+        swagger:
+          paths:
+            - classpath:META-INF/swagger
+          mapping: /swagger/**
   io:
     watch:
       paths: src/main
       restart: true
-
 ---
 kafka:
   bootstrap:
