@@ -1,7 +1,6 @@
 package org.samply.catalog.api.domain.service;
 
 import java.util.UUID;
-import java.util.function.Function;
 import javax.inject.Singleton;
 import org.samply.catalog.api.domain.model.Item;
 import org.samply.catalog.api.domain.model.ItemCreationDTO;

@@ -1,13 +1,10 @@
 package org.samply.catalog.api.web;
 
-import java.math.BigDecimal;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.samply.catalog.api.domain.model.Category;
 import org.samply.catalog.api.domain.model.Error;
 import org.samply.catalog.api.domain.model.ItemCreationDTO;
 import org.samply.catalog.api.domain.model.ItemDTO;
-import org.samply.catalog.api.domain.model.ItemId;
 import org.samply.catalog.api.domain.model.SellerId;
 import org.samply.catalog.api.domain.service.ItemService;
 import org.slf4j.Logger;
@@ -64,7 +61,7 @@ public class ItemResource {
             )
     })
     public Single<HttpResponse<ItemDTO>> addItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
-                                         @Valid @NotNull @Body ItemCreationDTO item) {
+                                                 @Valid @NotNull @Body ItemCreationDTO item) {
         LOG.info("POST Item for {}", sellerId);
 
         return itemService.addItem(item, sellerId)
