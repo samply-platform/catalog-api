@@ -14,3 +14,5 @@ out/
 .factorypath
 src/main/java/org/samply/catalog/api/domain/model/Item.java
 src/main/java/org/samply/catalog/api/domain/model/Category.java
+catalog-api-*.tgz
+dependency-reduced-pom.xml
