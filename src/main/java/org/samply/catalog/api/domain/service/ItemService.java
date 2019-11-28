@@ -3,7 +3,7 @@ package org.samply.catalog.api.domain.service;
 import java.util.UUID;
 import javax.inject.Singleton;
 import org.samply.catalog.api.domain.model.Item;
-import org.samply.catalog.api.domain.model.ItemCreationDTO;
+import org.samply.catalog.api.domain.model.ItemDataDTO;
 import org.samply.catalog.api.domain.model.ItemDTO;
 import org.samply.catalog.api.domain.model.ItemId;
 import org.samply.catalog.api.domain.model.SellerId;
@@ -18,8 +18,20 @@ public class ItemService {
         this.itemPublisher = itemPublisher;
     }
 
-    public Single<ItemDTO> addItem(ItemCreationDTO item, SellerId sellerId) {
-        Item itemEvent = createItemEvent(item, sellerId);
+    public Single<ItemDTO> addItem(ItemDataDTO item, SellerId sellerId) {
+        return publishItem(item, sellerId);
+    }
+
+    public Single<ItemDTO> updateItem(ItemId itemId, ItemDataDTO item, SellerId sellerId) {
+        return publishItem(itemId, item, sellerId);
+    }
+
+    private Single<ItemDTO> publishItem(ItemDataDTO item, SellerId sellerId) {
+        return publishItem(ItemId.of(UUID.randomUUID().toString()), item, sellerId);
+    }
+
+    private Single<ItemDTO> publishItem(ItemId itemId, ItemDataDTO item, SellerId sellerId) {
+        Item itemEvent = createItemEvent(itemId, item, sellerId);
 
         return itemPublisher.apply(itemEvent)
                             .map(ItemService::toDTO);
@@ -35,9 +47,9 @@ public class ItemService {
         );
     }
 
-    private static Item createItemEvent(ItemCreationDTO item, SellerId sellerId) {
+    private static Item createItemEvent(ItemId itemId, ItemDataDTO item, SellerId sellerId) {
         return Item.newBuilder()
-                   .setId(UUID.randomUUID().toString())
+                   .setId(itemId.getValue())
                    .setSellerId(sellerId.getValue())
                    .setTitle(item.getTitle())
                    .setDescription(item.getDescription())

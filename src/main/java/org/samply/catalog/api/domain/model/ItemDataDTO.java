@@ -9,7 +9,7 @@ import lombok.Value;
 
 @Value
 @Schema(title = "Item")
-public class ItemCreationDTO {
+public class ItemDataDTO {
 
     @NotBlank
     @Schema(required = true)
