@@ -24,6 +24,10 @@
       <id>confluent-repo</id>
       <url>https://packages.confluent.io/maven/</url>
     </repository>
+    <repository>
+      <id>bintray-americanexpress-maven</id>
+      <url>https://dl.bintray.com/americanexpress/maven</url>
+    </repository>
   </repositories>
   <pluginRepositories>
     <pluginRepository>
@@ -104,6 +108,12 @@
       <artifactId>kafka-avro-serializer</artifactId>
       <version>5.3.1</version>
     </dependency>
+    <dependency>
+      <groupId>io.aexp.nodes.graphql</groupId>
+      <artifactId>nodes</artifactId>
+      <version>0.5.0</version>
+    </dependency>
+
 
     <dependency>
       <groupId>ch.qos.logback</groupId>
