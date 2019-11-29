@@ -73,10 +73,7 @@ public class ItemResource {
 
     @Put("/{itemId}")
     @ApiResponses({
-            @ApiResponse(
-                responseCode = "200",
-                content = @Content(schema = @Schema(implementation = ItemDTO.class))
-            ),
+            @ApiResponse(responseCode = "202"),
             @ApiResponse(
                 responseCode = "400",
                 content = @Content(
@@ -87,13 +84,13 @@ public class ItemResource {
                 )
             )
     })
-    public Single<HttpResponse<ItemDTO>> updateItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
-                                                    @Valid @NotNull @PathVariable ItemId itemId,
-                                                    @Valid @NotNull @Body ItemDataDTO item) {
+    public Single<HttpResponse<?>> updateItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
+                                              @Valid @NotNull @PathVariable ItemId itemId,
+                                              @Valid @NotNull @Body ItemDataDTO item) {
         LOG.info("PUT Item for id {} for seller {}", itemId, sellerId);
 
         return itemService.updateItem(itemId, item, sellerId)
-                          .map(HttpResponse::ok);
+                          .toSingleDefault(HttpResponse.accepted());
     }
 
 }
