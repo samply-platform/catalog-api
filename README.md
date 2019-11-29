@@ -1,6 +1,6 @@
 # Installation
 
-```bash
+```
 export VERSION=`git rev-parse HEAD`
 export OAUTH_TOKEN_URL=http://localhost:8090/auth/realms/samply/protocol/openid-connect/token
 ./mvnw -B clean package
@@ -13,8 +13,6 @@ kubectl port-forward svc/catalog-api 8080:8080
 
 ## Manual istio sidecar injection
 
-```bash
+```
 helm template ./catalog-api-0.0.1.tgz -x templates/deployment.yaml -n catalog-api | istioctl kube-inject -f - | kubectl apply -f -
 ```
-
-## TODO
