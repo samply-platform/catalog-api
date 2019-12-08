@@ -4,14 +4,8 @@
       "type": "java",
       "name": "CodeLens (Launch) - Application",
       "request": "launch",
+      "preLaunchTask": "compile",
       "mainClass": "org.samply.catalog.api.Application",
-      "projectName": "catalog-api"
-    },
-    {
-      "type": "java",
-      "name": "CodeLens (Launch) - Application",
-      "request": "launch",
-      "mainClass": "src.main.java.catalog.api.Application",
       "projectName": "catalog-api"
     }
   ]

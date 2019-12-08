@@ -1,12 +1,13 @@
 package org.samply.catalog.api.domain.service;
 
+import static io.reactivex.Single.fromCallable;
 import java.util.UUID;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
+import org.samply.catalog.api.domain.exception.ItemNotFoundException;
 import org.samply.catalog.api.domain.model.Item;
-import org.samply.catalog.api.domain.model.ItemDataDTO;
 import org.samply.catalog.api.domain.model.ItemDTO;
+import org.samply.catalog.api.domain.model.ItemDataDTO;
 import org.samply.catalog.api.domain.model.ItemId;
 import org.samply.catalog.api.domain.model.SellerId;
 import io.reactivex.Completable;
@@ -15,32 +16,44 @@ import io.reactivex.Single;
 @Singleton
 public class ItemService {
 
-    private final ItemPublisher itemCreatedPublisher;
-    private final ItemPublisher itemUpdatedPublisher;
+    private final ItemPublisher itemPublisher;
+    private final ItemQueryService itemQueryService;
 
     @Inject
-    public ItemService(@Named("item-created-Publisher") ItemPublisher itemCreatedPublisher,
-                       @Named("item-updated-Publisher") ItemPublisher itemUpdatedPublisher) {
-        this.itemCreatedPublisher = itemCreatedPublisher;
-        this.itemUpdatedPublisher = itemUpdatedPublisher;
+    public ItemService(final ItemPublisher itemPublisher,
+                       final ItemQueryService itemQueryService) {
+        this.itemPublisher = itemPublisher;
+        this.itemQueryService = itemQueryService;
     }
 
-    public Single<ItemDTO> addItem(ItemDataDTO item, SellerId sellerId) {
-        ItemId itemId = ItemId.of(UUID.randomUUID().toString());
-        Item itemEvent = createItemEvent(itemId, item, sellerId);
+    public Single<ItemDTO> add(final ItemDataDTO item, final SellerId sellerId) {
+        final ItemId itemId = ItemId.of(UUID.randomUUID().toString());
+        final Item itemEvent = createItemEvent(itemId, item, sellerId);
 
-        return itemCreatedPublisher.apply(itemEvent)
-                                   .map(ItemService::toDTO);
+        return itemPublisher.publish(itemEvent)
+                            .map(ItemService::toDTO);
     }
 
-    public Completable updateItem(ItemId itemId, ItemDataDTO item, SellerId sellerId) {
-        Item itemEvent = createItemEvent(itemId, item, sellerId);
-
-        return itemUpdatedPublisher.apply(itemEvent)
-                                   .ignoreElement();
+    public Completable update(final ItemId itemId, final ItemDataDTO item, final SellerId sellerId) {
+        return ensureItemExistsAndIsAccessible(itemId, sellerId)
+                .map(i -> createItemEvent(itemId, item, sellerId))
+                .flatMap(itemEvent -> itemPublisher.publish(itemEvent))
+                .ignoreElement();
     }
 
-    private static ItemDTO toDTO(Item item) {
+    public Completable delete(final ItemId itemId, final SellerId sellerId) {
+        return ensureItemExistsAndIsAccessible(itemId, sellerId)
+                .flatMap(i -> itemPublisher.delete(itemId, sellerId))
+                .ignoreElement();
+    }
+
+    private Single<Item> ensureItemExistsAndIsAccessible(final ItemId itemId, final SellerId sellerId) {
+        return fromCallable(() -> itemQueryService.byId(itemId).orElseThrow(ItemNotFoundException::new))
+              .filter(i -> i.getSellerId().equals(sellerId.getValue()))
+              .switchIfEmpty(Single.error(new IllegalAccessException()));
+    }
+
+    private static ItemDTO toDTO(final Item item) {
         return ItemDTO.of(
                 ItemId.of(item.getId()),
                 item.getTitle(),
@@ -50,7 +63,7 @@ public class ItemService {
         );
     }
 
-    private static Item createItemEvent(ItemId itemId, ItemDataDTO item, SellerId sellerId) {
+    private static Item createItemEvent(final ItemId itemId, final ItemDataDTO item, final SellerId sellerId) {
         return Item.newBuilder()
                    .setId(itemId.getValue())
                    .setSellerId(sellerId.getValue())

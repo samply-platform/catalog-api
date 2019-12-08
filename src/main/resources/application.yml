@@ -36,3 +36,8 @@ kafka:
       schema:
         registry:
           url: http://localhost:8081
+---
+capi:
+  kafka:
+    topic: "item-log"
+    registryUrl: "http://localhost:8081"

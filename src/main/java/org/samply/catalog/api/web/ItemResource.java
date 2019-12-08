@@ -2,6 +2,7 @@ package org.samply.catalog.api.web;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.samply.catalog.api.domain.exception.ItemNotFoundException;
 import org.samply.catalog.api.domain.model.Error;
 import org.samply.catalog.api.domain.model.ItemDataDTO;
 import org.samply.catalog.api.domain.model.ItemDTO;
@@ -11,9 +12,11 @@ import org.samply.catalog.api.domain.service.ItemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
@@ -26,7 +29,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
-
 
 @Validated
 @Controller(
@@ -63,17 +65,19 @@ public class ItemResource {
                 )
             )
     })
-    public Single<HttpResponse<ItemDTO>> addItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
-                                                 @Valid @NotNull @Body ItemDataDTO item) {
+    public Single<HttpResponse<ItemDTO>> add(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
+                                             @Valid @NotNull @Body ItemDataDTO item) {
         LOG.info("POST Item for {}", sellerId);
 
-        return itemService.addItem(item, sellerId)
+        return itemService.add(item, sellerId)
                           .map(HttpResponse::created);
     }
 
     @Put("/{itemId}")
     @ApiResponses({
             @ApiResponse(responseCode = "202"),
+            @ApiResponse(responseCode = "404"),
+            @ApiResponse(responseCode = "403"),
             @ApiResponse(
                 responseCode = "400",
                 content = @Content(
@@ -84,13 +88,41 @@ public class ItemResource {
                 )
             )
     })
-    public Single<HttpResponse<?>> updateItem(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
-                                              @Valid @NotNull @PathVariable ItemId itemId,
-                                              @Valid @NotNull @Body ItemDataDTO item) {
+    public Single<HttpResponse<?>> update(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
+                                          @Valid @NotNull @PathVariable ItemId itemId,
+                                          @Valid @NotNull @Body ItemDataDTO item) {
         LOG.info("PUT Item for id {} for seller {}", itemId, sellerId);
 
-        return itemService.updateItem(itemId, item, sellerId)
-                          .toSingleDefault(HttpResponse.accepted());
+        return itemService.update(itemId, item, sellerId)
+                          .<HttpResponse<?>>toSingleDefault(HttpResponse.accepted())
+                          .onErrorReturn(this::handleError);
     }
+
+    @Delete("/{itemId}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204"),
+            @ApiResponse(responseCode = "404"),
+            @ApiResponse(responseCode = "403")
+    })
+    public Single<HttpResponse<?>> delete(@Valid @NotNull @Header("X-User-Id") SellerId sellerId,
+                                          @Valid @NotNull @PathVariable ItemId itemId) {
+        LOG.info("DELETE Item for id {} for seller {}", itemId, sellerId);
+
+        return itemService.delete(itemId, sellerId)
+                          .<HttpResponse<?>>toSingleDefault(HttpResponse.noContent())
+                          .onErrorReturn(this::handleError);
+    }
+
+
+    private HttpResponse<?> handleError(Throwable e) {
+        if (e instanceof ItemNotFoundException) {
+            return HttpResponse.notFound();
+        } else if (e instanceof IllegalAccessException) {
+            return HttpResponse.status(HttpStatus.FORBIDDEN);
+        } else {
+            return HttpResponse.serverError();
+        }
+    }
+
 
 }
